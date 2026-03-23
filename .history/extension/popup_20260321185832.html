@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>YouTalk AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 16px;
+      width: 320px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #response {
+      margin-top: 12px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h3>YouTalk AI</h3>
+  <input type="text" id="question" placeholder="Ask your doubt..." />
+  <button id="askBtn">Ask</button>
+  <p id="response"></p>
+  <script src="popup.js"></script>
+</body>
+</html>

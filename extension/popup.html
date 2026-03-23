@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTalk AI</title>
+  <style>
+    :root {
+      --ink: #12161f;
+      --muted: #5d6472;
+      --panel: rgba(255, 255, 255, 0.84);
+      --panel-strong: rgba(255, 255, 255, 0.94);
+      --line: rgba(17, 28, 45, 0.1);
+      --accent: #ff6a3d;
+      --accent-2: #f2b94b;
+      --accent-deep: #d94d24;
+      --success: #217a63;
+      --shadow: 0 22px 48px rgba(15, 24, 37, 0.18);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      width: 400px;
+      min-height: 620px;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.92), transparent 28%),
+        radial-gradient(circle at 85% 12%, rgba(242, 185, 75, 0.24), transparent 22%),
+        radial-gradient(circle at 12% 88%, rgba(80, 139, 255, 0.18), transparent 20%),
+        linear-gradient(145deg, #eef4ff 0%, #fff2e8 48%, #f3efe8 100%);
+      overflow: hidden;
+    }
+
+    .shell {
+      position: relative;
+      min-height: 620px;
+      padding: 20px;
+    }
+
+    .shell::before,
+    .shell::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(2px);
+    }
+
+    .shell::before {
+      top: -30px;
+      right: -12px;
+      width: 156px;
+      height: 156px;
+      background: rgba(255, 106, 61, 0.16);
+    }
+
+    .shell::after {
+      bottom: 124px;
+      left: -52px;
+      width: 140px;
+      height: 140px;
+      background: rgba(61, 112, 255, 0.12);
+    }
+
+    .panel {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 580px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-deep);
+      background: rgba(255, 106, 61, 0.12);
+    }
+
+    h1 {
+      margin: 10px 0 4px;
+      font-size: 30px;
+      line-height: 0.96;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      padding: 12px 14px 10px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, #13233a 0%, #203659 100%);
+      color: #f8fbff;
+      text-align: center;
+      min-width: 90px;
+    }
+
+    .badge strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .badge span {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.72;
+    }
+
+    .mode-strip {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-pill {
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(17, 28, 45, 0.08);
+      color: #495061;
+      font-size: 11px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mode-pill.active {
+      background: linear-gradient(135deg, rgba(255, 106, 61, 0.18), rgba(242, 185, 75, 0.26));
+      color: var(--accent-deep);
+      border-color: rgba(255, 106, 61, 0.22);
+    }
+
+    .composer {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .question-wrap {
+      position: relative;
+    }
+
+    .question-top {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .question-wrap textarea {
+      width: 100%;
+      min-height: 98px;
+      padding: 16px 16px 38px;
+      border: 1px solid rgba(17, 28, 45, 0.1);
+      border-radius: 18px;
+      resize: none;
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--ink);
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.45;
+      transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+    }
+
+    .question-wrap textarea:focus {
+      outline: none;
+      border-color: rgba(255, 106, 61, 0.52);
+      box-shadow: 0 0 0 4px rgba(255, 106, 61, 0.12);
+      transform: translateY(-1px);
+    }
+
+    .question-wrap textarea::placeholder {
+      color: #8b93a1;
+    }
+
+    .voice-btn {
+      width: 56px;
+      flex-shrink: 0;
+      border: 0;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #13233a 0%, #254066 100%);
+      color: #ffffff;
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 12px 22px rgba(19, 35, 58, 0.22);
+      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+    }
+
+    .voice-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 26px rgba(19, 35, 58, 0.28);
+    }
+
+    .voice-btn.listening {
+      background: linear-gradient(180deg, #ff6a3d 0%, #d94d24 100%);
+      animation: voiceGlow 1.2s ease-in-out infinite;
+    }
+
+    .hint {
+      position: absolute;
+      left: 16px;
+      bottom: 14px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8b93a1;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .actions button {
+      flex: 1;
+      border: 0;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 62%, #b73d1c 100%);
+      color: #fff8f2;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 14px 28px rgba(217, 77, 36, 0.28);
+      transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+    }
+
+    .actions button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 32px rgba(217, 77, 36, 0.32);
+    }
+
+    .actions button:disabled {
+      cursor: wait;
+      opacity: 0.74;
+      transform: none;
+      box-shadow: 0 8px 18px rgba(217, 77, 36, 0.18);
+    }
+
+    .status {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(17, 28, 45, 0.08);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      min-width: 110px;
+      text-align: center;
+    }
+
+    .status[data-tone="loading"] {
+      color: var(--accent-deep);
+      background: rgba(255, 221, 194, 0.6);
+    }
+
+    .status[data-tone="ready"] {
+      color: var(--success);
+      background: rgba(45, 106, 79, 0.1);
+    }
+
+    .context-card,
+    .response-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 16px;
+      border-radius: 20px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.76) 0%, rgba(247, 244, 239, 0.96) 100%);
+      border: 1px solid rgba(17, 28, 45, 0.08);
+    }
+
+    .context-card {
+      gap: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .kicker {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8c95a4;
+    }
+
+    .context-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .meta-box {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(17, 28, 45, 0.06);
+    }
+
+    .meta-box strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #7a8391;
+    }
+
+    .meta-box span {
+      display: block;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #1d2430;
+      word-break: break-word;
+    }
+
+    .context-snippet {
+      margin: 0;
+      padding: 12px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px dashed rgba(17, 28, 45, 0.1);
+      font-size: 12px;
+      line-height: 1.5;
+      color: #4d5563;
+      white-space: pre-wrap;
+    }
+
+    .response-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 0 rgba(255, 106, 61, 0.34);
+      animation: pulse 1.8s infinite;
+    }
+
+    .response {
+      margin: 0;
+      min-height: 132px;
+      max-height: 208px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #202733;
+      padding-right: 4px;
+    }
+
+    .response.empty {
+      color: #707887;
+    }
+
+    .response::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .response::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(92, 103, 121, 0.24);
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 106, 61, 0.3);
+      }
+
+      70% {
+        box-shadow: 0 0 0 12px rgba(255, 106, 61, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 106, 61, 0);
+      }
+    }
+
+    @keyframes voiceGlow {
+      0% {
+        box-shadow: 0 0 0 0 rgba(255, 106, 61, 0.34);
+      }
+
+      70% {
+        box-shadow: 0 0 0 14px rgba(255, 106, 61, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 106, 61, 0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="panel">
+      <header class="hero">
+        <div>
+          <span class="eyebrow">Video Intelligence</span>
+          <h1>YouTalk AI</h1>
+          <p class="subtitle">Explain scenes, identify people or products, and ground answers in the actual frame and page context.</p>
+        </div>
+        <div class="badge">
+          <strong>YT</strong>
+          <span>Vision</span>
+        </div>
+      </header>
+
+      <section class="mode-strip" id="modeStrip">
+        <div class="mode-pill active" id="modePill">Scene Explain</div>
+        <div class="mode-pill">Visual ID</div>
+        <div class="mode-pill">Character</div>
+        <div class="mode-pill">Summary</div>
+      </section>
+
+      <section class="composer">
+        <div class="question-wrap">
+          <div class="question-top">
+            <textarea id="question" placeholder="Ask what is happening here, who this actor is, which shoe brand is visible, or summarize this moment."></textarea>
+            <button type="button" class="voice-btn" id="voiceBtn" title="Use voice input">🎙</button>
+          </div>
+          <div class="hint">Press Cmd/Ctrl + Enter to analyze</div>
+        </div>
+
+        <div class="actions">
+          <button id="askBtn" type="button">Analyze Video</button>
+          <div class="status" id="status" data-tone="idle">Waiting for your question</div>
+        </div>
+      </section>
+
+      <section class="context-card">
+        <div class="section-head">
+          <h2>Live Context</h2>
+          <span class="kicker" id="contextKicker">Nothing captured yet</span>
+        </div>
+
+        <div class="context-grid">
+          <div class="meta-box">
+            <strong>Timestamp</strong>
+            <span id="contextTime">Not read yet</span>
+          </div>
+          <div class="meta-box">
+            <strong>Channel / Chapter</strong>
+            <span id="contextChannel">Waiting for video</span>
+          </div>
+        </div>
+
+        <p class="context-snippet" id="contextSnippet">The extension will show the video title, captions, and other evidence it captured before sending the request.</p>
+      </section>
+
+      <section class="response-card">
+        <div class="section-head">
+          <h2>Answer</h2>
+          <div class="pulse" aria-hidden="true"></div>
+        </div>
+        <p class="response empty" id="response">Your answer will appear here with the current frame, page metadata, and on-screen text as evidence.</p>
+      </section>
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

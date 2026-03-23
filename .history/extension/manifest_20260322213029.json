@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "YouTalk AI",
+  "version": "1.0",
+  "description": "AI YouTube Doubt Assistant",
+  "permissions": ["tabs", "scripting", "activeTab", "storage"],
+  "host_permissions": [
+    "https://generativelanguage.googleapis.com/*",
+    "https://www.youtube.com/*",
+    "https://m.youtube.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.youtube.com/*",
+        "https://m.youtube.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
