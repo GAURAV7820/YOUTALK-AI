@@ -10,7 +10,7 @@ const contextChannelEl = document.getElementById("contextChannel");
 const contextSnippetEl = document.getElementById("contextSnippet");
 const contextKickerEl = document.getElementById("contextKicker");
 const modePillEl = document.getElementById("modePill");
-const BACKEND_URL = "https://your-backend-url.onrender.com";
+const BACKEND_URL = "https://youtalk-ai.onrender.com";
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition;
 let isListening = false;
@@ -130,8 +130,12 @@ function buildContextSnippet(context) {
 }
 
 function updateContextPreview(context, mode) {
+    const metaParts = [context.channel, context.chapter]
+        .map((part) => part?.trim())
+        .filter((part) => part && part !== "•");
+
     contextTimeEl.textContent = `${formatTimestamp(context.time)}${context.paused ? " paused" : " live"}`;
-    contextChannelEl.textContent = [context.channel, context.chapter].filter(Boolean).join(" / ") || "Metadata not detected";
+    contextChannelEl.textContent = metaParts.join(" / ") || "Metadata not detected";
     contextSnippetEl.textContent = buildContextSnippet(context);
     contextKickerEl.textContent = `${mode.label} mode`;
     modePillEl.textContent = mode.label;
@@ -139,7 +143,7 @@ function updateContextPreview(context, mode) {
 
 function captureVisibleFrame(windowId) {
     return new Promise((resolve, reject) => {
-        chrome.tabs.captureVisibleTab(windowId, { format: "png" }, (dataUrl) => {
+        chrome.tabs.captureVisibleTab(windowId, { format: "jpeg", quality: 55 }, (dataUrl) => {
             if (chrome.runtime.lastError) {
                 reject(new Error(chrome.runtime.lastError.message));
                 return;
@@ -205,6 +209,22 @@ Response rules:
 - Keep the response compact and useful.`;
 }
 
+function getFrameStrategy(mode) {
+    if (mode.key === "visual-id" || mode.key === "character-id") {
+        return {
+            count: 2,
+            status: "Capturing nearby frames",
+            loadingMessage: "Analyzing nearby frames, metadata, and current video context...",
+        };
+    }
+
+    return {
+        count: 1,
+        status: "Capturing frame",
+        loadingMessage: "Analyzing the current frame, metadata, and video context...",
+    };
+}
+
 async function fetchVideoContext(tab) {
     await chrome.scripting.executeScript({
         target: { tabId: tab.id },
@@ -258,11 +278,12 @@ async function runAnalysis() {
         };
 
         updateContextPreview(context, mode);
-        setStatus("Capturing nearby frames", "loading");
-        const imageFrames = await captureFrameSequence(tab.windowId);
+        const frameStrategy = getFrameStrategy(mode);
+        setStatus(frameStrategy.status, "loading");
+        const imageFrames = await captureFrameSequence(tab.windowId, frameStrategy.count);
         const prompt = buildPrompt(question, context, mode);
 
-        setResponse("Analyzing nearby frames, metadata, and current video context...", true);
+        setResponse(frameStrategy.loadingMessage, true);
         setStatus("Asking AI", "loading");
         const res = await fetch(`${BACKEND_URL}/ask`, {
             method: "POST",
