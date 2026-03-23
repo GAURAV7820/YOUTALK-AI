@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "start": "node extension/server.js"
+    "start": "node server.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
