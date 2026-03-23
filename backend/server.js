@@ -5,29 +5,23 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// Resolve __dirname
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const envPath = path.resolve(__dirname, "../.env");
 
+// Load .env manually
 function loadLocalEnvFile(filePath) {
-    if (!fs.existsSync(filePath)) {
-        return;
-    }
+    if (!fs.existsSync(filePath)) return;
 
     const lines = fs.readFileSync(filePath, "utf8").split("\n");
 
     for (const line of lines) {
         const trimmed = line.trim();
-
-        if (!trimmed || trimmed.startsWith("#")) {
-            continue;
-        }
+        if (!trimmed || trimmed.startsWith("#")) continue;
 
         const separatorIndex = trimmed.indexOf("=");
-
-        if (separatorIndex === -1) {
-            continue;
-        }
+        if (separatorIndex === -1) continue;
 
         const key = trimmed.slice(0, separatorIndex).trim();
         const value = trimmed.slice(separatorIndex + 1).trim();
@@ -40,6 +34,7 @@ function loadLocalEnvFile(filePath) {
 
 loadLocalEnvFile(envPath);
 
+// App setup
 const app = express();
 const apiKey = process.env.GEMINI_API_KEY;
 const port = Number(process.env.PORT) || 3000;
@@ -47,18 +42,24 @@ const port = Number(process.env.PORT) || 3000;
 app.use(express.json({ limit: "10mb" }));
 app.use(cors());
 
+// ✅ Root route (IMPORTANT for Render + README)
+app.get("/", (req, res) => {
+    res.json({
+        message: "YOUTALK-AI Backend is running 🚀",
+        endpoint: "/ask",
+        method: "POST"
+    });
+});
+
+// Helper function
 function appendInlineImage(parts, imageData) {
-    if (typeof imageData !== "string" || !imageData.startsWith("data:")) {
-        return;
-    }
+    if (typeof imageData !== "string" || !imageData.startsWith("data:")) return;
 
     const match = imageData.match(/^data:(.+);base64,(.+)$/);
-
-    if (!match) {
-        return;
-    }
+    if (!match) return;
 
     const [, mimeType, data] = match;
+
     parts.push({
         inline_data: {
             mime_type: mimeType,
@@ -67,6 +68,7 @@ function appendInlineImage(parts, imageData) {
     });
 }
 
+// Main API
 app.post("/ask", async (req, res) => {
     const { prompt, imageData, imageFrames } = req.body;
 
@@ -102,15 +104,26 @@ app.post("/ask", async (req, res) => {
 
         const data = await response.json();
 
-        if (!response.ok) {
-            return res.status(response.status).json(data);
+        // ✅ Safety check
+        if (!response.ok || !data || !data.candidates) {
+            return res.status(response.status || 500).json({
+                error: "Invalid response from Gemini API",
+                details: data,
+            });
         }
 
         res.json(data);
+
     } catch (error) {
-        console.error("Gemini request failed", error);
-        res.status(500).json({ error: "Failed to reach Gemini API" });
+        console.error("Gemini request failed:", error);
+        res.status(500).json({
+            error: "Failed to reach Gemini API",
+            details: error.message,
+        });
     }
 });
 
-app.listen(port, "0.0.0.0", () => console.log(`Server running on port ${port}`));
+// Start server
+app.listen(port, "0.0.0.0", () => {
+    console.log(`Server running on port ${port}`);
+});
