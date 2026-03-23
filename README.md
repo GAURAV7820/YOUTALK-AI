@@ -8,6 +8,11 @@
 Users struggle to understand video content quickly and contextually.
 ---
 
+## 💡 Solution
+
+YOUTALK-AI provides real-time AI understanding of YouTube videos using frames + metadata.
+---
+
 ## 🚀 Overview
 
 **YOUTALK-AI** is a Chrome extension that analyzes YouTube videos in real time and answers user questions using AI.
