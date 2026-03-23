@@ -3,6 +3,10 @@
 ### AI that understands YouTube like a human
 
 ---
+## ❗ Problem
+
+Users struggle to understand video content quickly and contextually.
+---
 
 ## 🚀 Overview
 
@@ -21,15 +25,15 @@ https://youtalk-ai.onrender.com
 
 ---
 
-## ✨ Features
+##  Features
 
-* 🎥 **Real-time video understanding**
-* 🧠 **Scene explanation**
-* 👟 **Product detection (shoes, clothes, etc.)**
-* 🎭 **Character / actor identification**
-* 📜 **Video summarization**
-* 📸 **Multi-frame analysis for better accuracy**
-* ⚡ **Smart mode detection (visual, summary, source, etc.)**
+*  **Real-time video understanding**
+*  **Scene explanation**
+*  **Product detection (shoes, clothes, etc.)**
+*  **Character / actor identification**
+*  **Video summarization**
+*  **Multi-frame analysis for better accuracy**
+*  **Smart mode detection (visual, summary, source, etc.)**
 
 ---
 
@@ -42,7 +46,7 @@ https://youtalk-ai.onrender.com
 
 ---
 
-## 🧠 How It Works
+##  How It Works
 
 1. Captures current YouTube frame
 2. Extracts:
